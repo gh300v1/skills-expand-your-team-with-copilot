@@ -4,7 +4,7 @@ Endpoints for the High School Management System API
 
 from fastapi import APIRouter, HTTPException, Query
 from fastapi.responses import RedirectResponse
-from typing import Dict, Any, Optional, List
+from typing import Dict, Any, Optional, List, Literal
 
 from ..database import activities_collection, teachers_collection
 
@@ -19,7 +19,7 @@ def get_activities(
     day: Optional[str] = None,
     start_time: Optional[str] = None,
     end_time: Optional[str] = None,
-    difficulty: Optional[str] = None
+    difficulty: Optional[Literal["Beginner", "Intermediate", "Advanced", "all_levels"]] = None
 ) -> Dict[str, Any]:
     """
     Get all activities with their details, with optional filtering by day and time

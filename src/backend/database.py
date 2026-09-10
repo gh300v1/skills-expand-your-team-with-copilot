@@ -28,7 +28,14 @@ def init_database():
         for name, details in initial_activities.items():
             if "difficulty" in details:
                 activities_collection.update_one(
-                    {"_id": name, "difficulty": {"$exists": False}},
+                    {
+                        "_id": name,
+                        "$or": [
+                            {"difficulty": {"$exists": False}},
+                            {"difficulty": None},
+                            {"difficulty": ""}
+                        ]
+                    },
                     {"$set": {"difficulty": details["difficulty"]}}
                 )
             
