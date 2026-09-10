@@ -375,16 +375,15 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   async function shareActivity(activityName, details) {
+    if (!navigator.share) {
+      return;
+    }
+
     const shareData = {
       title: `${activityName} | ${schoolName}`,
       text: getActivityShareText(activityName, details),
       url: getActivityShareUrl(activityName),
     };
-
-    if (!navigator.share) {
-      await copyActivityShareLink(activityName);
-      return;
-    }
 
     try {
       await navigator.share(shareData);
@@ -703,13 +702,13 @@ document.addEventListener("DOMContentLoaded", () => {
     const nativeShareButton = activityCard.querySelector(".native-share-button");
     const copyShareButton = activityCard.querySelector(".copy-share-button");
 
-    if (!navigator.share) {
-      nativeShareButton.textContent = "Share Link";
+    if (navigator.share) {
+      nativeShareButton.addEventListener("click", () => {
+        shareActivity(name, details);
+      });
+    } else {
+      nativeShareButton.classList.add("hidden");
     }
-
-    nativeShareButton.addEventListener("click", () => {
-      shareActivity(name, details);
-    });
 
     copyShareButton.addEventListener("click", () => {
       copyActivityShareLink(name);
