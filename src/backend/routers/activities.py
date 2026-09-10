@@ -30,26 +30,35 @@ def get_activities(
     - difficulty: Filter activities by difficulty level or "all_levels" for activities without difficulty information
     """
     # Build the query based on provided filters
-    query = {}
+    query_clauses = []
     
     if day:
-        query["schedule_details.days"] = {"$in": [day]}
+        query_clauses.append({"schedule_details.days": {"$in": [day]}})
     
     if start_time:
-        query["schedule_details.start_time"] = {"$gte": start_time}
+        query_clauses.append({"schedule_details.start_time": {"$gte": start_time}})
     
     if end_time:
-        query["schedule_details.end_time"] = {"$lte": end_time}
+        query_clauses.append({"schedule_details.end_time": {"$lte": end_time}})
 
     if difficulty:
         if difficulty == "all_levels":
-            query["$or"] = [
-                {"difficulty": {"$exists": False}},
-                {"difficulty": None},
-                {"difficulty": ""}
-            ]
+            query_clauses.append({
+                "$or": [
+                    {"difficulty": {"$exists": False}},
+                    {"difficulty": None},
+                    {"difficulty": ""}
+                ]
+            })
         else:
-            query["difficulty"] = difficulty
+            query_clauses.append({"difficulty": difficulty})
+
+    if len(query_clauses) == 1:
+        query = query_clauses[0]
+    elif query_clauses:
+        query = {"$and": query_clauses}
+    else:
+        query = {}
     
     # Query the database
     activities = {}

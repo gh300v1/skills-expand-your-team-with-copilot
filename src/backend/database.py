@@ -33,7 +33,8 @@ def init_database():
                         "$or": [
                             {"difficulty": {"$exists": False}},
                             {"difficulty": None},
-                            {"difficulty": ""}
+                            {"difficulty": ""},
+                            {"difficulty": {"$nin": ["Beginner", "Intermediate", "Advanced"]}}
                         ]
                     },
                     {"$set": {"difficulty": details["difficulty"]}}
