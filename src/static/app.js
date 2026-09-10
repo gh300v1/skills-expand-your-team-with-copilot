@@ -703,13 +703,13 @@ document.addEventListener("DOMContentLoaded", () => {
     const nativeShareButton = activityCard.querySelector(".native-share-button");
     const copyShareButton = activityCard.querySelector(".copy-share-button");
 
-    if (navigator.share) {
-      nativeShareButton.addEventListener("click", () => {
-        shareActivity(name, details);
-      });
-    } else {
-      nativeShareButton.classList.add("hidden");
+    if (!navigator.share) {
+      nativeShareButton.textContent = "Share Link";
     }
+
+    nativeShareButton.addEventListener("click", () => {
+      shareActivity(name, details);
+    });
 
     copyShareButton.addEventListener("click", () => {
       copyActivityShareLink(name);
