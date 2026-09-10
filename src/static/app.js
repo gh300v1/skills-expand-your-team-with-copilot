@@ -310,14 +310,32 @@ document.addEventListener("DOMContentLoaded", () => {
         return;
       }
 
-      if (currentTimeRange === "weekend" && details.schedule_details) {
-        const activityDays = details.schedule_details.days;
-        const isWeekendActivity = activityDays.some((day) =>
-          timeRanges.weekend.days.includes(day)
-        );
+      if (currentTimeRange && details.schedule_details) {
+        if (currentTimeRange === "weekend") {
+          const activityDays = details.schedule_details.days;
+          const isWeekendActivity = activityDays.some((day) =>
+            timeRanges.weekend.days.includes(day)
+          );
 
-        if (!isWeekendActivity) {
-          return;
+          if (!isWeekendActivity) {
+            return;
+          }
+        } else {
+          const selectedRange = timeRanges[currentTimeRange];
+          const activityStartMinutes = parseTimeToMinutes(
+            details.schedule_details.start_time
+          );
+          const activityEndMinutes = parseTimeToMinutes(
+            details.schedule_details.end_time
+          );
+
+          if (
+            selectedRange &&
+            (activityStartMinutes < parseTimeToMinutes(selectedRange.start) ||
+              activityEndMinutes > parseTimeToMinutes(selectedRange.end))
+          ) {
+            return;
+          }
         }
       }
 
@@ -660,10 +678,16 @@ document.addEventListener("DOMContentLoaded", () => {
         event.style.color = typeInfo.textColor;
         event.title = tooltipText;
         event.setAttribute("aria-label", tooltipText);
-        event.innerHTML = `
-          <div class="calendar-entry-name">${entry.name}</div>
-          <div class="calendar-entry-enrollment">${takenSpots}/${totalSpots} enrolled</div>
-        `;
+        const eventName = document.createElement("div");
+        eventName.className = "calendar-entry-name";
+        eventName.textContent = entry.name;
+
+        const enrollmentSummary = document.createElement("div");
+        enrollmentSummary.className = "calendar-entry-enrollment";
+        enrollmentSummary.textContent = `${takenSpots}/${totalSpots} enrolled`;
+
+        event.appendChild(eventName);
+        event.appendChild(enrollmentSummary);
 
         dayColumn.appendChild(event);
       });
