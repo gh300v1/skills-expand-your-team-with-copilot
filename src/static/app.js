@@ -55,6 +55,31 @@ document.addEventListener("DOMContentLoaded", () => {
     weekend: { days: ["Saturday", "Sunday"] }, // Weekend days
   };
 
+  function getStoredItem(key) {
+    try {
+      return localStorage.getItem(key);
+    } catch (error) {
+      console.warn(`${key} could not be loaded:`, error);
+      return null;
+    }
+  }
+
+  function setStoredItem(key, value) {
+    try {
+      localStorage.setItem(key, value);
+    } catch (error) {
+      console.warn(`${key} could not be saved:`, error);
+    }
+  }
+
+  function removeStoredItem(key) {
+    try {
+      localStorage.removeItem(key);
+    } catch (error) {
+      console.warn(`${key} could not be cleared:`, error);
+    }
+  }
+
   function updateThemeToggle() {
     const isDarkMode = currentTheme === "dark";
     themeToggleIcon.textContent = isDarkMode ? "☀️" : "🌙";
@@ -63,17 +88,18 @@ document.addEventListener("DOMContentLoaded", () => {
       "aria-label",
       `Switch to ${isDarkMode ? "light" : "dark"} mode`
     );
+    themeToggleButton.setAttribute("aria-pressed", String(isDarkMode));
   }
 
   function applyTheme(theme) {
     currentTheme = theme === "dark" ? "dark" : "light";
     document.body.dataset.theme = currentTheme;
-    localStorage.setItem("themePreference", currentTheme);
+    setStoredItem("themePreference", currentTheme);
     updateThemeToggle();
   }
 
   function initializeTheme() {
-    applyTheme(localStorage.getItem("themePreference") || "light");
+    applyTheme(getStoredItem("themePreference") || "light");
   }
 
   // Initialize filters from active elements
@@ -125,7 +151,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
   // Check if user is already logged in (from localStorage)
   function checkAuthentication() {
-    const savedUser = localStorage.getItem("currentUser");
+    const savedUser = getStoredItem("currentUser");
     if (savedUser) {
       try {
         currentUser = JSON.parse(savedUser);
@@ -158,7 +184,7 @@ document.addEventListener("DOMContentLoaded", () => {
       // Session is valid, update user data
       const userData = await response.json();
       currentUser = userData;
-      localStorage.setItem("currentUser", JSON.stringify(userData));
+      setStoredItem("currentUser", JSON.stringify(userData));
       updateAuthUI();
     } catch (error) {
       console.error("Error validating session:", error);
@@ -215,7 +241,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
       // Login successful
       currentUser = data;
-      localStorage.setItem("currentUser", JSON.stringify(data));
+      setStoredItem("currentUser", JSON.stringify(data));
       updateAuthUI();
       closeLoginModalHandler();
       showMessage(`Welcome, ${currentUser.display_name}!`, "success");
@@ -230,7 +256,7 @@ document.addEventListener("DOMContentLoaded", () => {
   // Logout function
   function logout() {
     currentUser = null;
-    localStorage.removeItem("currentUser");
+    removeStoredItem("currentUser");
     updateAuthUI();
     showMessage("You have been logged out.", "info");
   }
