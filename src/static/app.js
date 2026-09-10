@@ -24,6 +24,8 @@ document.addEventListener("DOMContentLoaded", () => {
   const loginForm = document.getElementById("login-form");
   const closeLoginModal = document.querySelector(".close-login-modal");
   const loginMessage = document.getElementById("login-message");
+  const schoolName =
+    document.querySelector("header h1")?.textContent?.trim() || document.title;
 
   // Activity categories with corresponding colors
   const activityTypes = {
@@ -59,6 +61,10 @@ document.addEventListener("DOMContentLoaded", () => {
     const activeDayFilter = document.querySelector(".day-filter.active");
     if (activeDayFilter) {
       currentDay = activeDayFilter.dataset.day;
+    }
+
+    function normalizeText(value) {
+      return value.toLowerCase().replace(/[^a-z0-9]+/gi, " ").trim();
     }
 
     // Initialize time filter
@@ -323,7 +329,7 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   function getActivityShareText(activityName, details) {
-    return `Check out ${activityName} at Mergington High School. ${details.description}`;
+    return `Check out ${activityName} at ${schoolName}. ${details.description}`;
   }
 
   async function copyTextToClipboard(text) {
@@ -339,8 +345,12 @@ document.addEventListener("DOMContentLoaded", () => {
     tempInput.style.left = "-9999px";
     document.body.appendChild(tempInput);
     tempInput.select();
-    document.execCommand("copy");
+    const copied = document.execCommand("copy");
     document.body.removeChild(tempInput);
+
+    if (!copied) {
+      throw new Error("Copy command was unsuccessful");
+    }
   }
 
   async function copyActivityShareLink(activityName) {
@@ -355,7 +365,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
   async function shareActivity(activityName, details) {
     const shareData = {
-      title: `${activityName} | Mergington High School`,
+      title: `${activityName} | ${schoolName}`,
       text: getActivityShareText(activityName, details),
       url: getActivityShareUrl(activityName),
     };
@@ -510,15 +520,13 @@ document.addEventListener("DOMContentLoaded", () => {
 
       // Apply search filter
       const searchableContent = [
-        name.toLowerCase(),
-        details.description.toLowerCase(),
-        formatSchedule(details).toLowerCase(),
+        normalizeText(name),
+        normalizeText(details.description),
+        normalizeText(formatSchedule(details)),
       ].join(" ");
+      const normalizedSearchQuery = normalizeText(searchQuery);
 
-      if (
-        searchQuery &&
-        !searchableContent.includes(searchQuery.toLowerCase())
-      ) {
+      if (normalizedSearchQuery && !searchableContent.includes(normalizedSearchQuery)) {
         return;
       }
 
@@ -571,7 +579,7 @@ document.addEventListener("DOMContentLoaded", () => {
     const formattedSchedule = formatSchedule(details);
     const shareUrl = getActivityShareUrl(name);
     const emailShareLink = `mailto:?subject=${encodeURIComponent(
-      `${name} at Mergington High School`
+      `${name} at ${schoolName}`
     )}&body=${encodeURIComponent(
       `${getActivityShareText(name, details)}\n\nLearn more here: ${shareUrl}`
     )}`;
@@ -695,7 +703,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
     if (
       sharedActivityName &&
-      name.toLowerCase() === sharedActivityName.toLowerCase()
+      normalizeText(name).includes(normalizeText(sharedActivityName))
     ) {
       activityCard.classList.add("shared-activity-focus");
 
