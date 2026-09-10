@@ -72,6 +72,7 @@ test("restores dark mode from saved storage", async () => {
       dom.window.document.getElementById("theme-toggle-text").textContent,
       "Dark mode on"
     );
+    assert.equal(button.getAttribute("aria-label"), "Turn dark mode off");
     assert.equal(button.title, "Turn dark mode off");
     assert.deepEqual(jsdomErrors, []);
   } finally {
@@ -91,6 +92,7 @@ test("toggles between light and dark mode and saves the preference", async () =>
     assert.equal(document.body.dataset.theme, "dark");
     assert.equal(button.getAttribute("aria-pressed"), "true");
     assert.equal(document.getElementById("theme-toggle-text").textContent, "Dark mode on");
+    assert.equal(button.getAttribute("aria-label"), "Turn dark mode off");
     assert.equal(button.title, "Turn dark mode off");
     assert.equal(localStorage.getItem("themePreference"), "dark");
 
@@ -99,6 +101,7 @@ test("toggles between light and dark mode and saves the preference", async () =>
     assert.equal(document.body.dataset.theme, "light");
     assert.equal(button.getAttribute("aria-pressed"), "false");
     assert.equal(document.getElementById("theme-toggle-text").textContent, "Dark mode off");
+    assert.equal(button.getAttribute("aria-label"), "Turn dark mode on");
     assert.equal(button.title, "Turn dark mode on");
     assert.equal(localStorage.getItem("themePreference"), "light");
     assert.deepEqual(jsdomErrors, []);
@@ -114,6 +117,7 @@ test("falls back gracefully when browser storage is unavailable", async () => {
     const button = dom.window.document.getElementById("theme-toggle-button");
 
     assert.equal(dom.window.document.body.dataset.theme, "light");
+    assert.equal(button.getAttribute("aria-label"), "Turn dark mode on");
     assert.equal(button.title, "Turn dark mode on");
 
     button.click();
@@ -122,8 +126,13 @@ test("falls back gracefully when browser storage is unavailable", async () => {
     assert.equal(dom.window.document.body.dataset.theme, "dark");
     assert.equal(button.getAttribute("aria-pressed"), "true");
     assert.equal(dom.window.document.getElementById("theme-toggle-text").textContent, "Dark mode on");
+    assert.equal(button.getAttribute("aria-label"), "Turn dark mode off");
     assert.equal(button.title, "Turn dark mode off");
-    assert.match(warnings.join("\n"), /themePreference could not be loaded/);
+    assert.deepEqual(warnings, [
+      "themePreference could not be loaded: Error: blocked read",
+      "currentUser could not be loaded: Error: blocked read",
+      "themePreference could not be saved: Error: blocked write",
+    ]);
     assert.deepEqual(jsdomErrors, []);
   } finally {
     dom.window.close();

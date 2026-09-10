@@ -84,19 +84,25 @@ document.addEventListener("DOMContentLoaded", () => {
     const isDarkMode = currentTheme === "dark";
     themeToggleIcon.textContent = isDarkMode ? "🌙" : "☀️";
     themeToggleText.textContent = `Dark mode ${isDarkMode ? "on" : "off"}`;
+    themeToggleButton.setAttribute(
+      "aria-label",
+      `Turn dark mode ${isDarkMode ? "off" : "on"}`
+    );
     themeToggleButton.setAttribute("aria-pressed", String(isDarkMode));
     themeToggleButton.title = `Turn dark mode ${isDarkMode ? "off" : "on"}`;
   }
 
-  function applyTheme(theme) {
+  function applyTheme(theme, { persist = true } = {}) {
     currentTheme = theme === "dark" ? "dark" : "light";
     document.body.dataset.theme = currentTheme;
-    setStoredItem("themePreference", currentTheme);
+    if (persist) {
+      setStoredItem("themePreference", currentTheme);
+    }
     updateThemeToggle();
   }
 
   function initializeTheme() {
-    applyTheme(getStoredItem("themePreference") || "light");
+    applyTheme(getStoredItem("themePreference") || "light", { persist: false });
   }
 
   // Initialize filters from active elements
