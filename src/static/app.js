@@ -20,6 +20,9 @@ document.addEventListener("DOMContentLoaded", () => {
   const userInfo = document.getElementById("user-info");
   const displayName = document.getElementById("display-name");
   const logoutButton = document.getElementById("logout-button");
+  const themeToggleButton = document.getElementById("theme-toggle-button");
+  const themeToggleIcon = document.getElementById("theme-toggle-icon");
+  const themeToggleText = document.getElementById("theme-toggle-text");
   const loginModal = document.getElementById("login-modal");
   const loginForm = document.getElementById("login-form");
   const closeLoginModal = document.querySelector(".close-login-modal");
@@ -43,6 +46,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
   // Authentication state
   let currentUser = null;
+  let currentTheme = "light";
 
   // Time range mappings for the dropdown
   const timeRanges = {
@@ -50,6 +54,27 @@ document.addEventListener("DOMContentLoaded", () => {
     afternoon: { start: "15:00", end: "18:00" }, // After school hours
     weekend: { days: ["Saturday", "Sunday"] }, // Weekend days
   };
+
+  function updateThemeToggle() {
+    const isDarkMode = currentTheme === "dark";
+    themeToggleIcon.textContent = isDarkMode ? "☀️" : "🌙";
+    themeToggleText.textContent = isDarkMode ? "Light mode" : "Dark mode";
+    themeToggleButton.setAttribute(
+      "aria-label",
+      `Switch to ${isDarkMode ? "light" : "dark"} mode`
+    );
+  }
+
+  function applyTheme(theme) {
+    currentTheme = theme === "dark" ? "dark" : "light";
+    document.body.dataset.theme = currentTheme;
+    localStorage.setItem("themePreference", currentTheme);
+    updateThemeToggle();
+  }
+
+  function initializeTheme() {
+    applyTheme(localStorage.getItem("themePreference") || "light");
+  }
 
   // Initialize filters from active elements
   function initializeFilters() {
@@ -209,6 +234,10 @@ document.addEventListener("DOMContentLoaded", () => {
     updateAuthUI();
     showMessage("You have been logged out.", "info");
   }
+
+  themeToggleButton.addEventListener("click", () => {
+    applyTheme(currentTheme === "dark" ? "light" : "dark");
+  });
 
   // Show message in login modal
   function showLoginMessage(text, type) {
@@ -862,6 +891,7 @@ document.addEventListener("DOMContentLoaded", () => {
   };
 
   // Initialize app
+  initializeTheme();
   checkAuthentication();
   initializeFilters();
   fetchActivities();
