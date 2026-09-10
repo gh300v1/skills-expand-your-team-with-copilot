@@ -4,7 +4,7 @@ Endpoints for the High School Management System API
 
 from fastapi import APIRouter, HTTPException, Query
 from fastapi.responses import RedirectResponse
-from typing import Dict, Any, Optional, List
+from typing import Dict, Any, Optional, List, Literal
 
 from ..database import activities_collection, teachers_collection
 
@@ -18,7 +18,8 @@ router = APIRouter(
 def get_activities(
     day: Optional[str] = None,
     start_time: Optional[str] = None,
-    end_time: Optional[str] = None
+    end_time: Optional[str] = None,
+    difficulty: Optional[Literal["Beginner", "Intermediate", "Advanced", "all_levels"]] = None
 ) -> Dict[str, Any]:
     """
     Get all activities with their details, with optional filtering by day and time
@@ -26,18 +27,38 @@ def get_activities(
     - day: Filter activities occurring on this day (e.g., 'Monday', 'Tuesday')
     - start_time: Filter activities starting at or after this time (24-hour format, e.g., '14:30')
     - end_time: Filter activities ending at or before this time (24-hour format, e.g., '17:00')
+    - difficulty: Filter activities by difficulty level or "all_levels" for activities without difficulty information
     """
     # Build the query based on provided filters
-    query = {}
+    query_clauses = []
     
     if day:
-        query["schedule_details.days"] = {"$in": [day]}
+        query_clauses.append({"schedule_details.days": {"$in": [day]}})
     
     if start_time:
-        query["schedule_details.start_time"] = {"$gte": start_time}
+        query_clauses.append({"schedule_details.start_time": {"$gte": start_time}})
     
     if end_time:
-        query["schedule_details.end_time"] = {"$lte": end_time}
+        query_clauses.append({"schedule_details.end_time": {"$lte": end_time}})
+
+    if difficulty:
+        if difficulty == "all_levels":
+            query_clauses.append({
+                "$or": [
+                    {"difficulty": {"$exists": False}},
+                    {"difficulty": None},
+                    {"difficulty": ""}
+                ]
+            })
+        else:
+            query_clauses.append({"difficulty": difficulty})
+
+    if len(query_clauses) == 1:
+        query = query_clauses[0]
+    elif query_clauses:
+        query = {"$and": query_clauses}
+    else:
+        query = {}
     
     # Query the database
     activities = {}
