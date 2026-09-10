@@ -115,8 +115,10 @@ document.addEventListener("DOMContentLoaded", () => {
     difficultyFilters.forEach((btn) => {
       if (btn.dataset.difficulty === difficulty) {
         btn.classList.add("active");
+        btn.setAttribute("aria-pressed", "true");
       } else {
         btn.classList.remove("active");
+        btn.setAttribute("aria-pressed", "false");
       }
     });
 
