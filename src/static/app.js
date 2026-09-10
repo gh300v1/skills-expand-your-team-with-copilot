@@ -40,6 +40,8 @@ document.addEventListener("DOMContentLoaded", () => {
   let searchQuery = "";
   let currentDay = "";
   let currentTimeRange = "";
+  let sharedActivityName = "";
+  let hasFocusedSharedActivity = false;
 
   // Authentication state
   let currentUser = null;
@@ -63,6 +65,14 @@ document.addEventListener("DOMContentLoaded", () => {
     const activeTimeFilter = document.querySelector(".time-filter.active");
     if (activeTimeFilter) {
       currentTimeRange = activeTimeFilter.dataset.time;
+    }
+
+    const urlParams = new URLSearchParams(window.location.search);
+    const sharedActivity = urlParams.get("activity");
+    if (sharedActivity) {
+      sharedActivityName = sharedActivity.trim();
+      searchQuery = sharedActivityName;
+      searchInput.value = sharedActivityName;
     }
   }
 
@@ -304,6 +314,67 @@ document.addEventListener("DOMContentLoaded", () => {
     return details.schedule;
   }
 
+  function getActivityShareUrl(activityName) {
+    const shareUrl = new URL(window.location.href);
+    shareUrl.search = "";
+    shareUrl.hash = "";
+    shareUrl.searchParams.set("activity", activityName);
+    return shareUrl.toString();
+  }
+
+  function getActivityShareText(activityName, details) {
+    return `Check out ${activityName} at Mergington High School. ${details.description}`;
+  }
+
+  async function copyTextToClipboard(text) {
+    if (navigator.clipboard && window.isSecureContext) {
+      await navigator.clipboard.writeText(text);
+      return;
+    }
+
+    const tempInput = document.createElement("textarea");
+    tempInput.value = text;
+    tempInput.setAttribute("readonly", "");
+    tempInput.style.position = "absolute";
+    tempInput.style.left = "-9999px";
+    document.body.appendChild(tempInput);
+    tempInput.select();
+    document.execCommand("copy");
+    document.body.removeChild(tempInput);
+  }
+
+  async function copyActivityShareLink(activityName) {
+    try {
+      await copyTextToClipboard(getActivityShareUrl(activityName));
+      showMessage(`Share link copied for ${activityName}.`, "success");
+    } catch (error) {
+      console.error("Error copying share link:", error);
+      showMessage("Could not copy the share link. Please try again.", "error");
+    }
+  }
+
+  async function shareActivity(activityName, details) {
+    const shareData = {
+      title: `${activityName} | Mergington High School`,
+      text: getActivityShareText(activityName, details),
+      url: getActivityShareUrl(activityName),
+    };
+
+    if (!navigator.share) {
+      await copyActivityShareLink(activityName);
+      return;
+    }
+
+    try {
+      await navigator.share(shareData);
+    } catch (error) {
+      if (error.name !== "AbortError") {
+        console.error("Error sharing activity:", error);
+        showMessage("Could not open sharing options. Please try again.", "error");
+      }
+    }
+  }
+
   // Function to determine activity type (this would ideally come from backend)
   function getActivityType(activityName, description) {
     const name = activityName.toLowerCase();
@@ -498,6 +569,12 @@ document.addEventListener("DOMContentLoaded", () => {
 
     // Format the schedule using the new helper function
     const formattedSchedule = formatSchedule(details);
+    const shareUrl = getActivityShareUrl(name);
+    const emailShareLink = `mailto:?subject=${encodeURIComponent(
+      `${name} at Mergington High School`
+    )}&body=${encodeURIComponent(
+      `${getActivityShareText(name, details)}\n\nLearn more here: ${shareUrl}`
+    )}`;
 
     // Create activity tag
     const tagHtml = `
@@ -553,6 +630,20 @@ document.addEventListener("DOMContentLoaded", () => {
         </ul>
       </div>
       <div class="activity-card-actions">
+        <div class="share-actions">
+          <span class="share-label">Share with friends:</span>
+          <div class="share-buttons">
+            <button type="button" class="share-button native-share-button">
+              Share
+            </button>
+            <button type="button" class="share-button copy-share-button">
+              Copy Link
+            </button>
+            <a class="share-button share-link-button" href="${emailShareLink}">
+              Email
+            </a>
+          </div>
+        </div>
         ${
           currentUser
             ? `
@@ -577,6 +668,21 @@ document.addEventListener("DOMContentLoaded", () => {
       button.addEventListener("click", handleUnregister);
     });
 
+    const nativeShareButton = activityCard.querySelector(".native-share-button");
+    const copyShareButton = activityCard.querySelector(".copy-share-button");
+
+    if (navigator.share) {
+      nativeShareButton.addEventListener("click", () => {
+        shareActivity(name, details);
+      });
+    } else {
+      nativeShareButton.classList.add("hidden");
+    }
+
+    copyShareButton.addEventListener("click", () => {
+      copyActivityShareLink(name);
+    });
+
     // Add click handler for register button (only when authenticated)
     if (currentUser) {
       const registerButton = activityCard.querySelector(".register-button");
@@ -584,6 +690,20 @@ document.addEventListener("DOMContentLoaded", () => {
         registerButton.addEventListener("click", () => {
           openRegistrationModal(name);
         });
+      }
+    }
+
+    if (
+      sharedActivityName &&
+      name.toLowerCase() === sharedActivityName.toLowerCase()
+    ) {
+      activityCard.classList.add("shared-activity-focus");
+
+      if (!hasFocusedSharedActivity) {
+        hasFocusedSharedActivity = true;
+        setTimeout(() => {
+          activityCard.scrollIntoView({ behavior: "smooth", block: "center" });
+        }, 150);
       }
     }
 

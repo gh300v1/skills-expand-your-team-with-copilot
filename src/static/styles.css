@@ -169,6 +169,11 @@ section h3 {
   border-color: var(--border-focus);
 }
 
+.activity-card.shared-activity-focus {
+  border-color: var(--secondary);
+  box-shadow: 0 0 0 3px rgba(255, 111, 0, 0.2);
+}
+
 .activity-card h4 {
   margin-bottom: 8px;
   color: var(--primary);
@@ -187,7 +192,44 @@ section h3 {
   margin-top: auto;
   padding-top: 10px;
   display: flex;
-  justify-content: center;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.share-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.share-label {
+  font-size: 0.75rem;
+  color: var(--text-secondary);
+  font-weight: 600;
+}
+
+.share-buttons {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.share-button,
+.share-link-button {
+  background-color: var(--background);
+  color: var(--primary);
+  border: 1px solid var(--border);
+  padding: 5px 10px;
+  font-size: 0.75rem;
+  border-radius: 16px;
+  text-decoration: none;
+  line-height: 1.2;
+}
+
+.share-button:hover,
+.share-link-button:hover {
+  background-color: var(--primary-light);
+  color: var(--primary-text);
 }
 
 /* Activity Tag */
@@ -271,7 +313,6 @@ section h3 {
 .register-button {
   background: linear-gradient(145deg, var(--secondary), var(--secondary-dark));
   color: var(--secondary-text);
-  margin-top: 10px;
   padding: 6px 12px;
   width: 100%;
   font-weight: bold;
