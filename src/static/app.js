@@ -322,17 +322,24 @@ document.addEventListener("DOMContentLoaded", () => {
           }
         } else {
           const selectedRange = timeRanges[currentTimeRange];
+          if (!selectedRange) {
+            return;
+          }
+
           const activityStartMinutes = parseTimeToMinutes(
             details.schedule_details.start_time
           );
           const activityEndMinutes = parseTimeToMinutes(
             details.schedule_details.end_time
           );
+          const selectedRangeStartMinutes = parseTimeToMinutes(
+            selectedRange.start
+          );
+          const selectedRangeEndMinutes = parseTimeToMinutes(selectedRange.end);
 
           if (
-            selectedRange &&
-            (activityStartMinutes < parseTimeToMinutes(selectedRange.start) ||
-              activityEndMinutes > parseTimeToMinutes(selectedRange.end))
+            activityEndMinutes <= selectedRangeStartMinutes ||
+            activityStartMinutes >= selectedRangeEndMinutes
           ) {
             return;
           }
@@ -464,21 +471,6 @@ document.addEventListener("DOMContentLoaded", () => {
       // Handle day filter
       if (currentDay) {
         queryParams.push(`day=${encodeURIComponent(currentDay)}`);
-      }
-
-      // Handle time range filter
-      if (currentTimeRange) {
-        const range = timeRanges[currentTimeRange];
-
-        // Handle weekend special case
-        if (currentTimeRange === "weekend") {
-          // Don't add time parameters for weekend filter
-          // Weekend filtering will be handled on the client side
-        } else if (range) {
-          // Add time parameters for before/after school
-          queryParams.push(`start_time=${encodeURIComponent(range.start)}`);
-          queryParams.push(`end_time=${encodeURIComponent(range.end)}`);
-        }
       }
 
       const queryString =

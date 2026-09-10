@@ -645,9 +645,18 @@ footer {
   padding: 4px 12px;
 }
 
-.view-toggle-button.active,
 .view-toggle-button:hover {
   background-color: rgba(255, 255, 255, 0.35);
+}
+
+.view-toggle-button.active,
+.view-toggle-button:hover {
+  border-color: white;
+}
+
+.view-toggle-button.active {
+  background-color: white;
+  color: var(--primary);
 }
 
 .view-toggle-button:focus-visible {
