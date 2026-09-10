@@ -480,6 +480,16 @@ document.addEventListener("DOMContentLoaded", () => {
         queryParams.push(`day=${encodeURIComponent(currentDay)}`);
       }
 
+      // Handle time range filter
+      if (currentTimeRange) {
+        const range = timeRanges[currentTimeRange];
+
+        if (currentTimeRange !== "weekend" && range) {
+          queryParams.push(`start_time=${encodeURIComponent(range.start)}`);
+          queryParams.push(`end_time=${encodeURIComponent(range.end)}`);
+        }
+      }
+
       const queryString =
         queryParams.length > 0 ? `?${queryParams.join("&")}` : "";
       const response = await fetch(`/activities${queryString}`);

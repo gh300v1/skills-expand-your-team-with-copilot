@@ -13,6 +13,42 @@ router = APIRouter(
     tags=["activities"]
 )
 
+
+def parse_time_to_minutes(time_value: str) -> int:
+    """Convert HH:MM text into minutes since midnight."""
+    hours, minutes = [int(part) for part in time_value.split(":")]
+    return hours * 60 + minutes
+
+
+def activity_overlaps_range(activity: Dict[str, Any], start_time: Optional[str], end_time: Optional[str]) -> bool:
+    """Return True when an activity overlaps the requested time window."""
+    if not start_time and not end_time:
+        return True
+
+    schedule_details = activity.get("schedule_details")
+    if not schedule_details:
+        return True
+
+    activity_start = parse_time_to_minutes(schedule_details["start_time"])
+    activity_end = parse_time_to_minutes(schedule_details["end_time"])
+
+    if activity_end <= activity_start:
+        activity_end += 24 * 60
+
+    range_start = parse_time_to_minutes(start_time) if start_time else None
+    range_end = parse_time_to_minutes(end_time) if end_time else None
+
+    if range_start is not None and range_end is not None:
+        if range_end <= range_start:
+            range_end += 24 * 60
+        return activity_end > range_start and activity_start < range_end
+
+    if range_start is not None:
+        return activity_end > range_start
+
+    return activity_start < range_end
+
+
 @router.get("", response_model=Dict[str, Any])
 @router.get("/", response_model=Dict[str, Any])
 def get_activities(
@@ -33,15 +69,12 @@ def get_activities(
     if day:
         query["schedule_details.days"] = {"$in": [day]}
     
-    if start_time:
-        query["schedule_details.start_time"] = {"$gte": start_time}
-    
-    if end_time:
-        query["schedule_details.end_time"] = {"$lte": end_time}
-    
     # Query the database
     activities = {}
     for activity in activities_collection.find(query):
+        if not activity_overlaps_range(activity, start_time, end_time):
+            continue
+
         name = activity.pop('_id')
         activities[name] = activity
     
