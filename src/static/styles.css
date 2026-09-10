@@ -685,6 +685,11 @@ footer {
   background-color: var(--header-control-hover-bg);
 }
 
+#theme-toggle-button[aria-pressed="true"] {
+  background-color: var(--surface);
+  color: var(--primary);
+}
+
 .user-icon {
   font-size: 1rem;
 }

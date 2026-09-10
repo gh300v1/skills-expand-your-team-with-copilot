@@ -82,12 +82,8 @@ document.addEventListener("DOMContentLoaded", () => {
 
   function updateThemeToggle() {
     const isDarkMode = currentTheme === "dark";
-    themeToggleIcon.textContent = isDarkMode ? "☀️" : "🌙";
-    themeToggleText.textContent = isDarkMode ? "Light mode" : "Dark mode";
-    themeToggleButton.setAttribute(
-      "aria-label",
-      `Switch to ${isDarkMode ? "light" : "dark"} mode`
-    );
+    themeToggleIcon.textContent = "🌙";
+    themeToggleText.textContent = "Dark mode";
     themeToggleButton.setAttribute("aria-pressed", String(isDarkMode));
   }
 
