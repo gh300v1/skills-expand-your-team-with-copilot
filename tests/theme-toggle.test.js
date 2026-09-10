@@ -95,7 +95,7 @@ test("restores dark mode from saved storage", async () => {
   }
 });
 
-test("toggles between light and dark mode and saves the preference", async () => {
+test("toggles between light and dark mode through click and keyboard activation", async () => {
   const { dom, jsdomErrors } = await loadApp();
 
   try {
@@ -111,7 +111,12 @@ test("toggles between light and dark mode and saves the preference", async () =>
     assert.equal(button.title, "Turn dark mode off");
     assert.equal(localStorage.getItem("themePreference"), "dark");
 
-    button.click();
+    button.dispatchEvent(
+      new dom.window.KeyboardEvent("keydown", {
+        key: "Enter",
+        bubbles: true,
+      })
+    );
     await new Promise((resolve) => setTimeout(resolve, 0));
     assert.equal(document.body.dataset.theme, "light");
     assert.equal(button.getAttribute("aria-pressed"), "false");

@@ -109,6 +109,10 @@ document.addEventListener("DOMContentLoaded", () => {
     applyTheme(getStoredItem("themePreference") || "light", { persist: false });
   }
 
+  function toggleTheme() {
+    applyTheme(currentTheme === "dark" ? "light" : "dark");
+  }
+
   // Initialize filters from active elements
   function initializeFilters() {
     // Initialize day filter
@@ -270,7 +274,14 @@ document.addEventListener("DOMContentLoaded", () => {
 
   if (themeToggleButton) {
     themeToggleButton.addEventListener("click", () => {
-      applyTheme(currentTheme === "dark" ? "light" : "dark");
+      toggleTheme();
+    });
+
+    themeToggleButton.addEventListener("keydown", (event) => {
+      if (event.key === "Enter" || event.key === " " || event.key === "Spacebar") {
+        event.preventDefault();
+        toggleTheme();
+      }
     });
   }
 
