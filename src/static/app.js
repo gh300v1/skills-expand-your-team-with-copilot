@@ -730,11 +730,13 @@ document.addEventListener("DOMContentLoaded", () => {
       normalizeText(name) === normalizeText(sharedActivityName)
     ) {
       activityCard.classList.add("shared-activity-focus");
+      activityCard.setAttribute("tabindex", "-1");
 
       if (!hasFocusedSharedActivity) {
         hasFocusedSharedActivity = true;
         setTimeout(() => {
           activityCard.scrollIntoView({ behavior: "smooth", block: "center" });
+          activityCard.focus({ preventScroll: true });
         }, 150);
       }
     }
