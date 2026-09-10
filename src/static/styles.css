@@ -20,6 +20,11 @@
   --border: #e0e0e0;
   --border-light: #f0f0f0;
   --border-focus: #d0d0d0;
+  --header-control-bg: rgba(255, 255, 255, 0.2);
+  --header-control-hover-bg: rgba(255, 255, 255, 0.3);
+  --shadow-soft: rgba(0, 0, 0, 0.1);
+  --shadow-medium: rgba(0, 0, 0, 0.16);
+  --shadow-strong: rgba(0, 0, 0, 0.15);
 
   /* Feedback colors */
   --success: #2e7d32;
@@ -30,6 +35,33 @@
   --error-light: #ffebee;
   --info: #0c5460;
   --info-light: #d1ecf1;
+}
+
+body[data-theme="dark"] {
+  --primary: #8da2fb;
+  --primary-light: #b8c4ff;
+  --primary-dark: #5f77db;
+  --primary-text: #101323;
+  --secondary: #ffb74d;
+  --secondary-light: #ffd089;
+  --secondary-dark: #f57c00;
+  --secondary-text: #231500;
+  --background: #111827;
+  --surface: #1f2937;
+  --text-primary: #f3f4f6;
+  --text-secondary: #d1d5db;
+  --border: #374151;
+  --border-light: #4b5563;
+  --border-focus: #6b7280;
+  --header-control-bg: rgba(17, 24, 39, 0.35);
+  --header-control-hover-bg: rgba(17, 24, 39, 0.55);
+  --shadow-soft: rgba(0, 0, 0, 0.35);
+  --shadow-medium: rgba(0, 0, 0, 0.45);
+  --shadow-strong: rgba(0, 0, 0, 0.4);
+  --success-light: #16351d;
+  --warning-light: #3d2b0c;
+  --error-light: #3f191c;
+  --info-light: #14343c;
 }
 
 * {
@@ -57,7 +89,7 @@ header {
   background-color: var(--primary);
   color: var(--primary-text);
   border-radius: 5px;
-  box-shadow: 0 3px 6px rgba(0, 0, 0, 0.16);
+  box-shadow: 0 3px 6px var(--shadow-medium);
   position: relative;
   display: flex;
   flex-direction: column;
@@ -83,7 +115,7 @@ section {
   background-color: var(--surface);
   padding: 15px;
   border-radius: 5px;
-  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 2px 5px var(--shadow-soft);
   width: 100%;
 }
 
@@ -106,7 +138,7 @@ section h3 {
   padding: 15px;
   background-color: var(--surface);
   border-radius: 5px;
-  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 2px 5px var(--shadow-soft);
 }
 
 .sidebar-filters h3 {
@@ -157,7 +189,7 @@ section h3 {
   flex-direction: column;
   height: 100%;
   transition: all 0.3s ease;
-  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+  box-shadow: 0 2px 5px var(--shadow-soft);
   position: relative;
   overflow: hidden;
   font-size: 0.85rem;
@@ -165,7 +197,7 @@ section h3 {
 
 .activity-card:hover {
   transform: translateY(-5px);
-  box-shadow: 0 8px 15px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 8px 15px var(--shadow-soft);
   border-color: var(--border-focus);
 }
 
@@ -424,7 +456,7 @@ button {
   position: relative;
   transform: translateY(-20px);
   transition: transform 0.3s ease;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+  box-shadow: 0 4px 20px var(--shadow-strong);
   border: 1px solid var(--border);
 }
 
@@ -617,6 +649,9 @@ footer {
   position: absolute;
   top: 10px;
   right: 15px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
 }
 
 #user-status {
@@ -639,7 +674,7 @@ footer {
   display: flex;
   align-items: center;
   gap: 5px;
-  background-color: rgba(255, 255, 255, 0.2);
+  background-color: var(--header-control-bg);
   border-radius: 20px;
   padding: 4px 12px;
   font-size: 0.85rem;
@@ -647,7 +682,12 @@ footer {
 }
 
 .icon-button:hover {
-  background-color: rgba(255, 255, 255, 0.3);
+  background-color: var(--header-control-hover-bg);
+}
+
+#theme-toggle-button[aria-pressed="true"] {
+  background-color: var(--surface);
+  color: var(--primary);
 }
 
 .user-icon {
@@ -656,11 +696,11 @@ footer {
 
 #logout-button {
   padding: 3px 10px;
-  background-color: rgba(255, 255, 255, 0.2);
+  background-color: var(--header-control-bg);
   font-size: 0.8rem;
   border-radius: 20px;
 }
 
 #logout-button:hover {
-  background-color: rgba(255, 255, 255, 0.3);
+  background-color: var(--header-control-hover-bg);
 }
