@@ -55,13 +55,13 @@ document.addEventListener("DOMContentLoaded", () => {
 
   // Initialize filters from active elements
   function initializeFilters() {
-    // Initialize difficulty filter
     const activeDifficultyFilter = document.querySelector(
       ".difficulty-filter.active"
     );
     if (activeDifficultyFilter) {
       currentDifficulty = activeDifficultyFilter.dataset.difficulty;
     }
+    updateDifficultyFilterButtons(currentDifficulty);
 
     // Initialize day filter
     const activeDayFilter = document.querySelector(".day-filter.active");
@@ -108,10 +108,7 @@ document.addEventListener("DOMContentLoaded", () => {
     fetchActivities();
   }
 
-  // Function to set difficulty filter
-  function setDifficultyFilter(difficulty) {
-    currentDifficulty = difficulty;
-
+  function updateDifficultyFilterButtons(difficulty) {
     difficultyFilters.forEach((btn) => {
       if (btn.dataset.difficulty === difficulty) {
         btn.classList.add("active");
@@ -121,6 +118,12 @@ document.addEventListener("DOMContentLoaded", () => {
         btn.setAttribute("aria-pressed", "false");
       }
     });
+  }
+
+  // Function to set difficulty filter
+  function setDifficultyFilter(difficulty) {
+    currentDifficulty = difficulty;
+    updateDifficultyFilterButtons(difficulty);
 
     fetchActivities();
   }
