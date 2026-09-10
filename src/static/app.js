@@ -530,7 +530,7 @@ document.addEventListener("DOMContentLoaded", () => {
     const timeColumn = document.createElement("div");
     timeColumn.className = "calendar-time-column";
 
-    for (let hour = calendarStartHour; hour <= calendarEndHour; hour++) {
+    for (let hour = calendarStartHour; hour < calendarEndHour; hour++) {
       const timeLabel = document.createElement("div");
       timeLabel.className = "calendar-time-label";
       const displayHour = hour % 12 || 12;
@@ -574,7 +574,7 @@ document.addEventListener("DOMContentLoaded", () => {
       dayColumn.className = "calendar-day-column";
 
       const columnHeight =
-        (calendarEndHour - calendarStartHour + 1) * calendarHourHeight;
+        (calendarEndHour - calendarStartHour) * calendarHourHeight;
       dayColumn.style.height = `${columnHeight}px`;
 
       const sortedEntries = dayEntries[day].sort(
@@ -622,11 +622,24 @@ document.addEventListener("DOMContentLoaded", () => {
         const totalSpots = entry.details.max_participants;
         const takenSpots = entry.details.participants.length;
         const schedule = formatSchedule(entry.details);
+        const visibleStartMinutes = Math.max(
+          entry.startMinutes,
+          calendarStartHour * 60
+        );
+        const visibleEndMinutes = Math.min(
+          entry.endMinutes,
+          calendarEndHour * 60
+        );
+
+        if (visibleEndMinutes <= visibleStartMinutes) {
+          return;
+        }
+
         const top =
-          ((entry.startMinutes - calendarStartHour * 60) / 60) *
+          ((visibleStartMinutes - calendarStartHour * 60) / 60) *
           calendarHourHeight;
         const durationHours = Math.max(
-          (entry.endMinutes - entry.startMinutes) / 60,
+          (visibleEndMinutes - visibleStartMinutes) / 60,
           0.5
         );
         const width = 100 / entry.group.maxColumns;
