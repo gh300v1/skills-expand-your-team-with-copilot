@@ -300,6 +300,17 @@ document.addEventListener("DOMContentLoaded", () => {
     return hours * 60 + minutes;
   }
 
+  function getScheduleWindowMinutes(scheduleDetails) {
+    const startMinutes = parseTimeToMinutes(scheduleDetails.start_time);
+    let endMinutes = parseTimeToMinutes(scheduleDetails.end_time);
+
+    if (endMinutes <= startMinutes) {
+      endMinutes += 24 * 60;
+    }
+
+    return { startMinutes, endMinutes };
+  }
+
   function getFilteredActivities() {
     const filteredActivities = [];
 
@@ -326,12 +337,8 @@ document.addEventListener("DOMContentLoaded", () => {
             return;
           }
 
-          const activityStartMinutes = parseTimeToMinutes(
-            details.schedule_details.start_time
-          );
-          const activityEndMinutes = parseTimeToMinutes(
-            details.schedule_details.end_time
-          );
+          const { startMinutes: activityStartMinutes, endMinutes: activityEndMinutes } =
+            getScheduleWindowMinutes(details.schedule_details);
           const selectedRangeStartMinutes = parseTimeToMinutes(
             selectedRange.start
           );
@@ -561,8 +568,9 @@ document.addEventListener("DOMContentLoaded", () => {
         return;
       }
 
-      const startMinutes = parseTimeToMinutes(details.schedule_details.start_time);
-      const endMinutes = parseTimeToMinutes(details.schedule_details.end_time);
+      const { startMinutes, endMinutes } = getScheduleWindowMinutes(
+        details.schedule_details
+      );
 
       details.schedule_details.days.forEach((day) => {
         if (!dayEntries[day]) {
