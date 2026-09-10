@@ -232,6 +232,14 @@ section h3 {
   color: var(--primary-text);
 }
 
+.share-button:focus-visible,
+.share-link-button:focus-visible {
+  outline: 2px solid var(--secondary);
+  outline-offset: 2px;
+  background-color: var(--primary-light);
+  color: var(--primary-text);
+}
+
 /* Activity Tag */
 .activity-tag {
   position: absolute;

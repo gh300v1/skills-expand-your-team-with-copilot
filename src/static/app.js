@@ -67,6 +67,14 @@ document.addEventListener("DOMContentLoaded", () => {
       return value.toLowerCase().replace(/[^a-z0-9]+/gi, " ").trim();
     }
 
+    function getActivityDescriptionText(details) {
+      if (typeof details.description === "string" && details.description.trim()) {
+        return details.description.trim();
+      }
+
+      return "";
+    }
+
     // Initialize time filter
     const activeTimeFilter = document.querySelector(".time-filter.active");
     if (activeTimeFilter) {
@@ -329,7 +337,10 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   function getActivityShareText(activityName, details) {
-    return `Check out ${activityName} at ${schoolName}. ${details.description}`;
+    const description = getActivityDescriptionText(details);
+    return description
+      ? `Check out ${activityName} at ${schoolName}. ${description}`
+      : `Check out ${activityName} at ${schoolName}.`;
   }
 
   async function copyTextToClipboard(text) {
@@ -388,7 +399,7 @@ document.addEventListener("DOMContentLoaded", () => {
   // Function to determine activity type (this would ideally come from backend)
   function getActivityType(activityName, description) {
     const name = activityName.toLowerCase();
-    const desc = description.toLowerCase();
+    const desc = getActivityDescriptionText({ description }).toLowerCase();
 
     if (
       name.includes("soccer") ||
@@ -500,6 +511,8 @@ document.addEventListener("DOMContentLoaded", () => {
 
     Object.entries(allActivities).forEach(([name, details]) => {
       const activityType = getActivityType(name, details.description);
+      const normalizedActivityName = normalizeText(name);
+      const normalizedSharedActivityName = normalizeText(sharedActivityName);
 
       // Apply category filter
       if (currentFilter !== "all" && activityType !== currentFilter) {
@@ -520,13 +533,24 @@ document.addEventListener("DOMContentLoaded", () => {
 
       // Apply search filter
       const searchableContent = [
-        normalizeText(name),
-        normalizeText(details.description),
+        normalizedActivityName,
+        normalizeText(getActivityDescriptionText(details)),
         normalizeText(formatSchedule(details)),
       ].join(" ");
       const normalizedSearchQuery = normalizeText(searchQuery);
 
-      if (normalizedSearchQuery && !searchableContent.includes(normalizedSearchQuery)) {
+      if (
+        normalizedSharedActivityName &&
+        normalizedActivityName !== normalizedSharedActivityName
+      ) {
+        return;
+      }
+
+      if (
+        !normalizedSharedActivityName &&
+        normalizedSearchQuery &&
+        !searchableContent.includes(normalizedSearchQuery)
+      ) {
         return;
       }
 
@@ -703,7 +727,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
     if (
       sharedActivityName &&
-      normalizeText(name).includes(normalizeText(sharedActivityName))
+      normalizeText(name) === normalizeText(sharedActivityName)
     ) {
       activityCard.classList.add("shared-activity-focus");
 
@@ -721,12 +745,14 @@ document.addEventListener("DOMContentLoaded", () => {
   // Event listeners for search and filter
   searchInput.addEventListener("input", (event) => {
     searchQuery = event.target.value;
+    sharedActivityName = "";
     displayFilteredActivities();
   });
 
   searchButton.addEventListener("click", (event) => {
     event.preventDefault();
     searchQuery = searchInput.value;
+    sharedActivityName = "";
     displayFilteredActivities();
   });
 
