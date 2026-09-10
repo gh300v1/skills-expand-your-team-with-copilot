@@ -9,6 +9,18 @@ const staticDir = path.join(repoRoot, "src", "static");
 const html = fs.readFileSync(path.join(staticDir, "index.html"), "utf8");
 const script = fs.readFileSync(path.join(staticDir, "app.js"), "utf8");
 
+async function waitFor(check, { timeout = 500 } = {}) {
+  const start = Date.now();
+
+  while (!check()) {
+    if (Date.now() - start > timeout) {
+      throw new Error("Timed out waiting for app state");
+    }
+
+    await new Promise((resolve) => setTimeout(resolve, 5));
+  }
+}
+
 async function loadApp({ savedTheme = null, blockStorage = false } = {}) {
   const warnings = [];
   const jsdomErrors = [];
@@ -55,7 +67,10 @@ async function loadApp({ savedTheme = null, blockStorage = false } = {}) {
   });
 
   dom.window.eval(script);
-  await new Promise((resolve) => setTimeout(resolve, 50));
+  await waitFor(() => {
+    const theme = dom.window.document.body.dataset.theme;
+    return theme === "light" || theme === "dark";
+  });
 
   return { dom, warnings, jsdomErrors };
 }

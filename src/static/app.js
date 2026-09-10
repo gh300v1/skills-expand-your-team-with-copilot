@@ -81,6 +81,10 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   function updateThemeToggle() {
+    if (!themeToggleButton || !themeToggleIcon || !themeToggleText) {
+      return;
+    }
+
     const isDarkMode = currentTheme === "dark";
     themeToggleIcon.textContent = isDarkMode ? "🌙" : "☀️";
     themeToggleText.textContent = `Dark mode ${isDarkMode ? "on" : "off"}`;
@@ -264,9 +268,11 @@ document.addEventListener("DOMContentLoaded", () => {
     showMessage("You have been logged out.", "info");
   }
 
-  themeToggleButton.addEventListener("click", () => {
-    applyTheme(currentTheme === "dark" ? "light" : "dark");
-  });
+  if (themeToggleButton) {
+    themeToggleButton.addEventListener("click", () => {
+      applyTheme(currentTheme === "dark" ? "light" : "dark");
+    });
+  }
 
   // Show message in login modal
   function showLoginMessage(text, type) {
